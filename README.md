@@ -8,6 +8,11 @@ My configuration repo for the Helix editor.
 [![Markdown Checks](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml)
 
 
+## Reading
+
+[Build from source](https://docs.helix-editor.com/install.html#build-from-source)
+
+
 ## Instalation
 
 - Clone the dotfiles repo:
