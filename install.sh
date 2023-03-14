@@ -6,8 +6,16 @@ if [[ ! -d helix.git/ ]]; then
 	exit 1
 fi
 
+echo Running: rustc --version
+rustc --version
+printf "\n"
+
 echo Running: cd helix.git/
 cd helix.git/ || exit
+printf "\n"
+
+echo Running: cargo clean
+time cargo clean
 printf "\n"
 
 echo Running: git restore .
@@ -28,6 +36,10 @@ printf "\n"
 
 echo Running: git switch --detach "${hx_tag}"
 git switch --detach "${hx_tag}" || exit
+printf "\n"
+
+echo Running: rustup override set stable
+rustup override set stable
 printf "\n"
 
 echo Running: cargo install --path helix-term
