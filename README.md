@@ -37,3 +37,8 @@ cargo install --path helix-term
 $ hx --version
 helix 22.12 (96ff64a8)
 ```
+
+
+## Themes
+
+[Theme Documentation](https://github.com/helix-editor/helix/wiki/Themes)
