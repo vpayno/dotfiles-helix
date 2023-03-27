@@ -42,3 +42,8 @@ helix 22.12 (96ff64a8)
 ## Themes
 
 [Theme Documentation](https://github.com/helix-editor/helix/wiki/Themes)
+
+
+## Book/Documentation
+
+[Helix Online Book](https://docs.helix-editor.com/title-page.html)
