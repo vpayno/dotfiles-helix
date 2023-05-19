@@ -1,0 +1,10 @@
+# #
+# .yamllint.yaml
+#
+# https://yamllint.readthedocs.io/en/stable/
+---
+
+extends: default
+
+rules:
+  line-length: disable
