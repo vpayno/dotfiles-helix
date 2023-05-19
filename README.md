@@ -16,7 +16,7 @@ My configuration repo for the Helix editor.
 [Build from source](https://docs.helix-editor.com/install.html#build-from-source)
 
 
-## Instalation
+## Installation
 
 - Clone the dotfiles repo:
 
