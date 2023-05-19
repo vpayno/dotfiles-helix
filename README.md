@@ -5,6 +5,7 @@ My configuration repo for the Helix editor.
 
 ## Badges
 
+[![GitHub Action Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/gh-actions.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/gh-actions.yml)
 [![Markdown Checks](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml)
 [![Yaml Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml)
 
