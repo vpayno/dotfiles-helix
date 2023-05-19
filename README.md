@@ -2,7 +2,6 @@
 
 My configuration repo for the Helix editor.
 
-
 ## Badges
 
 [![GitHub Action Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/gh-actions.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/gh-actions.yml)
@@ -10,11 +9,9 @@ My configuration repo for the Helix editor.
 [![Spelling Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/misspell.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/misspell.yml)
 [![Yaml Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml)
 
-
 ## Reading
 
 [Build from source](https://docs.helix-editor.com/install.html#build-from-source)
-
 
 ## Installation
 
@@ -41,11 +38,9 @@ $ hx --version
 helix 22.12 (96ff64a8)
 ```
 
-
 ## Themes
 
 [Theme Documentation](https://github.com/helix-editor/helix/wiki/Themes)
-
 
 ## Book/Documentation
 
