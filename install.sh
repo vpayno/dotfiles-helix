@@ -6,6 +6,9 @@ if [[ ! -d helix.git/ ]]; then
 	exit 1
 fi
 
+declare hx_tag
+declare hx_ver
+
 echo Running: rustc --version
 rustc --version
 printf "\n"
@@ -49,6 +52,15 @@ printf "\n"
 echo Running: hx --version
 hx --version || exit
 printf "\n"
+
+hx_ver="$(hx --version | awk '/^helix/ { print $2 }')"
+
+if [[ ${hx_ver} == "${hx_tag}" ]]; then
+	printf "Success: installed hx has the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
+else
+	printf "Failure: installed hx doesn't have the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
+	exit 1
+fi
 
 # echo Running: hx --grammar fetch
 # hx --grammar fetch
