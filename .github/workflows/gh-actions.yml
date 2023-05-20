@@ -1,4 +1,9 @@
 ---
+#
+# .github/woorkflows/gh-actions.yml
+#
+# https://github.com/reviewdog/action-actionlint
+#
 name: GitHub Action Workflow
 on:  # yamllint disable-line rule:truthy
   push:
