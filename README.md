@@ -8,6 +8,7 @@ My configuration repo for the Helix editor.
 [![Markdown Checks](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/markdown.yml)
 [![Shellcheck Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/shellcheck.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/shellcheck.yml)
 [![Spelling Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/misspell.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/misspell.yml)
+[![Tests Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/tests.yml)
 [![Yaml Workflow](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml/badge.svg?branch=main)](https://github.com/vpayno/dotfiles-helix/actions/workflows/yaml.yml)
 
 ## Reading
