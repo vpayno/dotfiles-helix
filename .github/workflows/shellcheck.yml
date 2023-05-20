@@ -20,7 +20,7 @@ defaults:
     shell: bash
 
 jobs:
-  spelling:
+  shellcheck:
     name: Shellcheck Check
     runs-on: "ubuntu-latest"
     steps:
