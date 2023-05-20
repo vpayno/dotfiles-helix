@@ -1,0 +1,40 @@
+---
+#
+# .github/workflows/shellcheck.yml
+#
+# https://github.com/reviewdog/action-shellcheck
+#
+name: Shellcheck Workflow
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+env:
+  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  spelling:
+    name: Shellcheck Check
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Run shellcheck
+        uses: reviewdog/action-shellcheck@v1
+        with:
+          check_all_files_with_shebangs: true
+          exclude: |
+            ./.git/hooks/*sample
+            ./helix.git
+          fail_on_error: true
+          github_token: ${{ secrets.github_token }}
+          level: error
+          path: "."
+          reporter: github-check
