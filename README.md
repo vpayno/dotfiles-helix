@@ -20,7 +20,7 @@ My configuration repo for the Helix editor.
 - Clone the dotfiles repo:
 
 ```bash
-git clone --recursive -j 8 https://github.com:vpayno/dotfiles-helix ~/.config/helix
+git clone --recursive -j 8 https://github.com/vpayno/dotfiles-helix ~/.config/helix
 ```
 
 - Checkout the latest tag, build and install Helix.
