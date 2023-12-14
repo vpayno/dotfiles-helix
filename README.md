@@ -47,3 +47,7 @@ helix 22.12 (96ff64a8)
 ## Book/Documentation
 
 [Helix Online Book](https://docs.helix-editor.com/title-page.html)
+
+## Configuration
+
+Using [this](https://github.com/LGUG2Z/helix-vim) config to make helix more vim-like.
