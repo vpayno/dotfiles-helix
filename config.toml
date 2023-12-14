@@ -135,7 +135,7 @@ E = ["move_next_long_word_end", "collapse_selection"]
 b = ["move_prev_word_start", "collapse_selection"]
 B = ["move_prev_long_word_start", "collapse_selection"]
 
-# If you want to keep the selection-while-moving behaviour of Helix, this two lines will help a lot,
+# If you want to keep the selection-while-moving behavior of Helix, this two lines will help a lot,
 # especially if you find having text remain selected while you have switched to insert or append mode
 #
 # There is no real difference if you have overridden the commands bound to 'w', 'e' and 'b' like above
