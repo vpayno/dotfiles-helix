@@ -45,6 +45,12 @@ echo Running: rustup override set stable
 rustup override set stable
 printf "\n"
 
+# temporary fix for the 23.10 tag
+if [[ ${hx_tag} == 23.10 ]]; then
+	echo Running: git cherry-pick 6d168eda275deb23b0c643aecd746af3f4cc9937
+	git cherry-pick 6d168eda275deb23b0c643aecd746af3f4cc9937
+fi
+
 echo Running: cargo install --path helix-term
 time cargo install --path helix-term || exit
 printf "\n"
