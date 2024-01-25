@@ -2,8 +2,7 @@
 
 # https://docs.helix-editor.com/configuration.html
 
-theme = "autumn_night"
-# theme = "ayu_dark"
+theme = "vpayno-dark1"
 
 [editor]
 scrolloff = 5

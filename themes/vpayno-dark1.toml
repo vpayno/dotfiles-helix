@@ -1,0 +1,7 @@
+inherits = "autumn_night"
+
+"ui.background" = { bg = "black" }
+
+[palette]
+white = "#ffffff"
+black = "#000000"
