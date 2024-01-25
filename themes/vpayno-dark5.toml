@@ -1,0 +1,7 @@
+inherits = "horizon-dark"
+
+"ui.background" = { bg = "black" }
+
+[palette]
+white = "#ffffff"
+black = "#000000"
