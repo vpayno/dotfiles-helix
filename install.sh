@@ -81,6 +81,10 @@ else
 	exit 1
 fi
 
+if [[ -f ~/.vim/configs/editorconfig ]]; then
+	cp -v ~/.vim/configs/editorconfig .editorconfig
+fi
+
 # echo Running: hx --grammar fetch
 # hx --grammar fetch
 # printf "\n"
