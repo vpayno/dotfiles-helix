@@ -1,0 +1,7 @@
+inherits = "dark_high_contrast"
+
+"ui.background" = { bg = "black" }
+
+[palette]
+white = "#ffffff"
+black = "#000000"
