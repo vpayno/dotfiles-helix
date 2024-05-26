@@ -74,11 +74,12 @@ printf "\n"
 
 printf -v hx_ver "%s" "$(hx --version | awk '/^helix/ { print $2 }')"
 
-if [[ ${hx_ver} == "${hx_tag}" ]]; then
-	printf "Success: installed hx has the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
-else
-	printf "Failure: installed hx doesn't have the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
-	exit 1
+# starting with 24.03, the app reports 24.3
+if [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+$ ]]; then
+	printf -v hx_ver "%02d.%02d" "${hx_ver%.*}" "${hx_ver#*.}"
+elif [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
+	# shellcheck disable=SC2086
+	printf -v hx_ver "%02d.%02d.%02d" ${hx_ver//[.]/ }
 fi
 
 if [[ -f ~/.vim/configs/editorconfig ]]; then
@@ -92,3 +93,10 @@ fi
 # echo Running: hx --grammar build
 # hx --grammar build
 # printf "\n"
+
+if [[ ${hx_ver} == "${hx_tag}" ]]; then
+	printf "Success: installed hx has the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
+else
+	printf "Failure: installed hx doesn't have the expected version (got:%s == want:%s)\n" "${hx_ver}" "${hx_tag}"
+	exit 1
+fi
