@@ -39,8 +39,8 @@ echo Running: git switch master
 git switch master || exit
 printf "\n"
 
-echo Running: git pull
-time git pull || exit
+echo Running: git pull --tags
+time git pull --tags || exit
 printf "\n"
 
 if ${USE_HEAD}; then
