@@ -15,6 +15,10 @@ fi
 declare hx_tag
 declare hx_ver
 
+if [[ -f ~/.vim/configs/editorconfig ]]; then
+	cp -v ~/.vim/configs/editorconfig .editorconfig
+fi
+
 echo Running: rustc --version
 rustc --version
 printf "\n"
@@ -80,10 +84,6 @@ if [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+$ ]]; then
 elif [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
 	# shellcheck disable=SC2086
 	printf -v hx_ver "%02d.%02d.%02d" ${hx_ver//[.]/ }
-fi
-
-if [[ -f ~/.vim/configs/editorconfig ]]; then
-	cp -v ~/.vim/configs/editorconfig .editorconfig
 fi
 
 # echo Running: hx --grammar fetch
