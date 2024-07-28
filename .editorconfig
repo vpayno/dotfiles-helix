@@ -23,9 +23,9 @@ indent_style = space
 tab_width = 4
 
 [*.{c,h,cpp,hpp}]
-indent_size = 4
+indent_size = 2
 indent_style = space
-tab_width = 4
+tab_width = 2
 
 [*.{vim,vimrc}]
 indent_size = 4
