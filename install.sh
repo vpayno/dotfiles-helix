@@ -64,10 +64,6 @@ if ! ${USE_HEAD}; then
 	fi
 fi
 
-echo Running: rustup override set stable
-rustup override set stable
-printf "\n"
-
 echo Running: cargo install --path helix-term
 time cargo install --path helix-term || exit
 printf "\n"
