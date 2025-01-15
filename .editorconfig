@@ -12,6 +12,11 @@ max_line_length = 240
 # tab_width = 4
 trim_trailing_whitespace = true
 
+[*.nix]
+indent_size = 2
+indent_style = space
+tab_width = 2
+
 [{*.hcl,*.tf,*.tfvars,*.terraformrc,terraform.rc}]
 indent_size = 4
 indent_style = space
