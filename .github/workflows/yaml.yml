@@ -13,6 +13,9 @@ on: # yamllint disable-line rule:truthy
       - develop
   pull_request:
 
+env:
+  REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 defaults:
   run:
     shell: bash
@@ -64,19 +67,13 @@ jobs:
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
-      - name: YamlLint with Reviewdog
-        uses: reviewdog/action-yamllint@v1
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Check Nixpkgs inputs
+        uses: DeterminateSystems/flake-checker-action@main
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # Change reviewdog reporter if you need [github-pr-check,github-check,github-pr-review].
-          reporter: github-check
-          # Change reporter level if you need. GitHub Status Check won't become failure with warning.
-          level: error
-          # Enable this to fail the check when violations are found
-          fail_on_error: true
-          # yamllint command flags
-          yamllint_flags: "."
-      - name: Show yamllint Version
-        id: yamllint-version
-        run: |-
-          yamllint --version
+          fail-mode: true
+      - name: yamllint with reviewdog
+        id: run-yamllint
+        run: |
+          nix develop .#ci-yaml --command yamllint-with-reviewdog

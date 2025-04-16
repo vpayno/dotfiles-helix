@@ -61,6 +61,27 @@
 
           printf "Done\n"
         '';
+
+        ci-run-yamllint = pkgs.writeScriptBin "ci-run-yamllint" ''
+          ${pkgs.lib.getExe pkgs.yamllint} ''${INPUT_YAMLLINT_FLAGS:-'.'} "$@"
+        '';
+
+        yamllint-with-reviewdog = pkgs.writeScriptBin "yamllint-with-reviewdog" ''
+          printf "Running %s ci linter...\n" "yamllint"
+          printf "\n"
+
+          ${pkgs.lib.getExe ci-run-yamllint} |
+            ${pkgs.lib.getExe pkgs.reviewdog} \
+              -efm="%f:%l:%c: %m" \
+              -name "yamllint" \
+              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+              -level="''${INPUT_LEVEL}" \
+              -filter-mode="''${INPUT_FILTER_MODE}" \
+              -fail-level="''${INPUT_FAIL_LEVEL}" \
+              ''${INPUT_REVIEWDOG_FLAGS}
+
+          printf "Done\n"
+        '';
       in
       {
         formatter = treefmt-conf.formatter.${system};
@@ -102,6 +123,34 @@
 
               export INPUT_MARKDOWNCLI_IGNORE="--ignore ./pages-gh"
               export INPUT_MARKDOWNCLI_FLAGS="."
+
+              export INPUT_LEVEL="error"
+              export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
+              export INPUT_FAIL_LEVEL="any" # any error
+            '';
+          };
+          ci-yaml = pkgs.mkShell {
+            buildInputs =
+              with pkgs;
+              [
+                reviewdog
+                yamllint
+              ]
+              ++ [
+                ci-run-yamllint
+                yamllint-with-reviewdog
+              ];
+            shellHook = ''
+              ${pkgs.lib.getExe pkgs.cowsay} "Welcome to .#ci-yaml devShell!"
+              printf "\n"
+
+              printf "reviewdog version: "
+              reviewdog --version
+              printf "yamllint version: "
+              yamllint --version
+              printf "\n"
+
+              export INPUT_YAMLLINT_FLAGS="."
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
