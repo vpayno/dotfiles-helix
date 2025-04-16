@@ -2,14 +2,14 @@
 #
 # .github/workflows/tests.yml
 #
-# https://github.com/actions-rust-lang/setup-rust-toolchain
-#
 name: Tests Workflow
 on:  # yamllint disable-line rule:truthy
   push:
     branches:
       - main
       - develop
+    tags:
+      - "*.*.*"
   pull_request:
 
 env:
@@ -26,16 +26,16 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: "recursive"
-      - name: Setup Rust
-        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Check Nixpkgs inputs
+        uses: DeterminateSystems/flake-checker-action@main
         with:
-          toolchain: stable
-          cache: true
+          fail-mode: true
       - name: Check Rust Version
-        run: rustc --version
+        run: nix develop .#ci --command rustc --version
       - name: Test install.sh script
-        run: |-
-          ./install.sh
+        run: nix develop .#ci --command ./install.sh

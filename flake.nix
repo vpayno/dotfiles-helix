@@ -29,9 +29,28 @@
         pname = "dotfiles-helix";
         version = "20250415.0.0";
         name = "${pname}-${version}";
+
+        pkgs = nixpkgs.legacyPackages.${system};
       in
       {
         formatter = treefmt-conf.formatter.${system};
+
+        devShells = {
+          ci = pkgs.mkShell {
+            buildInputs = with pkgs; [
+              rustc
+              cargo
+            ];
+            shellHook = ''
+              ${pkgs.lib.getExe pkgs.cowsay} "Welcome to .#ci-test devShell!"
+              printf "\n"
+
+              printf "rust version: "
+              rustc --version
+              printf "\n"
+            '';
+          };
+        };
       }
     );
 }
