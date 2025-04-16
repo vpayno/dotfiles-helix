@@ -20,13 +20,13 @@ defaults:
 jobs:
   stage1:
     name: Change Check
-    runs-on: 'ubuntu-latest'
+    runs-on: "ubuntu-latest"
     outputs:
       docs_changed: ${{ steps.check_file_changed.outputs.docs_changed }}
     steps:
       - name: Checkout Repo
         id: checkout-repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           ref: ${{ github.ref }}
@@ -63,7 +63,7 @@ jobs:
     if: needs.stage1.outputs.docs_changed == 'True'
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: YamlLint with Reviewdog
         uses: reviewdog/action-yamllint@v1
         with:
