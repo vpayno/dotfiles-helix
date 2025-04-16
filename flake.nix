@@ -42,6 +42,25 @@
           inherit system overlays;
         };
 
+        ci-run-markdownlint-cli = pkgs.writeScriptBin "ci-run-markdownlint-cli" ''
+          # CHANGELOG.md:5:1 MD033/no-inline-html Inline HTML [Element: h2]
+          # CHANGELOG.md:9 MD001/heading-increment/header-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
+
+          ${pkgs.lib.getExe pkgs.markdownlint-cli} $INPUT_MARKDOWNCLI_IGNORE $INPUT_MARKDOWNCLI_FLAGS "$@"
+        '';
+
+        markdownlint-cli-with-reviewdog = pkgs.writeScriptBin "markdownlint-cli-with-reviewdog" ''
+          printf "Running %s ci linter...\n" "markdownlint-cli"
+          printf "\n"
+
+          ${pkgs.lib.getExe ci-run-markdownlint-cli} |
+            ${pkgs.lib.getExe pkgs.gnused} -r -e 's/^(.*[.]md:[0-9]+) (.*)$/\1:1 \2/g' |
+              ${pkgs.lib.getExe pkgs.reviewdog} -tee -efm="%f:%l:%c: %m" -name="markdownlint" \
+              -reporter="$INPUT_REPORTER" \
+              -fail-level="$INPUT_FAIL_LEVEL"
+
+          printf "Done\n"
+        '';
       in
       {
         formatter = treefmt-conf.formatter.${system};
@@ -58,6 +77,35 @@
               printf "rust version: "
               rustc --version
               printf "\n"
+            '';
+          };
+          ci-markdown = pkgs.mkShell {
+            buildInputs =
+              with pkgs;
+              [
+                markdownlint-cli
+                reviewdog
+              ]
+              ++ [
+                ci-run-markdownlint-cli
+                markdownlint-cli-with-reviewdog
+              ];
+            shellHook = ''
+              ${pkgs.lib.getExe pkgs.cowsay} "Welcome to .#ci-markdown devShell!"
+              printf "\n"
+
+              printf "reviewdog version: "
+              reviewdog --version
+              printf "markdownlint-cli version: "
+              markdownlint --version
+              printf "\n"
+
+              export INPUT_MARKDOWNCLI_IGNORE="--ignore ./pages-gh"
+              export INPUT_MARKDOWNCLI_FLAGS="."
+
+              export INPUT_LEVEL="error"
+              export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
+              export INPUT_FAIL_LEVEL="any" # any error
             '';
           };
         };

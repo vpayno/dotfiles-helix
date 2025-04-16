@@ -80,38 +80,14 @@ jobs:
         id: checkout-repo
         uses: actions/checkout@v4
 
-      - name: Install Node
-        id: install-node
-        uses: actions/setup-node@v4
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Check Nixpkgs inputs
+        uses: DeterminateSystems/flake-checker-action@main
         with:
-          node-version: lts/*
-
-      - name: Set up Go (using version in go.mod)
-        id: setup-go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ">=1.19.0"
-
-      - name: Check Node Version
-        id: npm-version-check
-        run: |
-          npm --version
-
-      - name: Install ReviewDog
-        id: install-reviewdog
-        run: |
-          go install github.com/reviewdog/reviewdog/cmd/reviewdog@latest
-
-      - name: Install markdownlint
-        id: install-markdownlint
-        run: |
-          npm install -g markdownlint-cli
-          printf "\n"
-          markdownlint -h
+          fail-mode: true
 
       - name: markdownlint with reviewdog
         id: run-markdownlint
-        run: |
-          # CHANGELOG.md:5:1 MD033/no-inline-html Inline HTML [Element: h2]
-          # CHANGELOG.md:9 MD001/heading-increment/header-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
-          markdownlint --ignore ./pages-gh . | sed -r -e 's/^(.*[.]md:[0-9]+) (.*)$/\1:1 \2/g' | reviewdog -tee -efm="%f:%l:%c: %m" -name="markdownlint" -reporter=github-check
+        run: nix develop .#ci-markdown --command markdownlint-cli-with-reviewdog
