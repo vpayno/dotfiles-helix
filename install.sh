@@ -79,7 +79,7 @@ if [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+$ ]]; then
 	printf -v hx_ver "%02d.%02d" "${hx_ver%.*}" "${hx_ver#*.}"
 elif [[ ${hx_ver} =~ ^[0-9]+[.][0-9]+[.][0-9]+$ ]]; then
 	# shellcheck disable=SC2086
-	printf -v hx_ver "%02d.%02d.%02d" ${hx_ver//[.]/ }
+	printf -v hx_ver "%02d.%02d.%d" ${hx_ver//[.]/ }
 fi
 
 # echo Running: hx --grammar fetch
