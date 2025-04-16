@@ -66,4 +66,5 @@ hx --version
 
 ## Configuration
 
-Using [this](https://github.com/LGUG2Z/helix-vim) config to make helix more vim-like.
+Using [this](https://github.com/LGUG2Z/helix-vim) config to make helix more
+vim-like.

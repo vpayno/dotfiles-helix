@@ -6,7 +6,7 @@
 # https://github.com/reviewdog/action-yamllint
 #
 name: Yaml Workflow
-on:  # yamllint disable-line rule:truthy
+on: # yamllint disable-line rule:truthy
   push:
     branches:
       - main
@@ -75,7 +75,7 @@ jobs:
           # Enable this to fail the check when violations are found
           fail_on_error: true
           # yamllint command flags
-          yamllint_flags: '.'
+          yamllint_flags: "."
       - name: Show yamllint Version
         id: yamllint-version
         run: |-
