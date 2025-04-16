@@ -35,7 +35,5 @@ jobs:
         uses: DeterminateSystems/flake-checker-action@main
         with:
           fail-mode: true
-      - name: Check Rust Version
-        run: nix develop .#ci --command rustc --version
       - name: Test install.sh script
-        run: nix develop .#ci --command ./install.sh
+        run: nix develop .#ci-test --command ./install.sh

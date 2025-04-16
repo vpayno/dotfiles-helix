@@ -47,7 +47,7 @@
         formatter = treefmt-conf.formatter.${system};
 
         devShells = {
-          ci = pkgs.mkShell {
+          ci-test = pkgs.mkShell {
             buildInputs = with pkgs; [
               rust-bin.stable.latest.default # or .minimal
             ];
