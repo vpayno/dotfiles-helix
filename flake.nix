@@ -106,6 +106,99 @@
 
           printf "Done\n"
         '';
+
+        # first line needs to be a number
+        cargoSpellcheckDictionary = pkgs.writeText ".config/mywords.dic" ''
+          100
+          Changelog
+          Nix
+          NixOS
+          README
+          TODO
+          UTF-8
+          cli
+          macOS
+          nix
+          nixos
+        '';
+
+        # generate: cargo-spellcheck config
+        # fix: the ''' quotes need to be '''' for Nix
+        cargoSpellcheckConfig = pkgs.writeText ".config/spellcheck.toml" ''
+          dev_comments = false
+          skip_readme = false
+
+          [hunspell]
+          lang = "en_US"
+          search_dirs = []
+          skip_os_lookups = false
+          use_builtin = true
+          tokenization_splitchars = ''''",;:.!?#(){}[]|/_-‒'`&@§¶…''''
+          extra_dictionaries = [ "${cargoSpellcheckDictionary}" ]
+
+          [hunspell.quirks]
+          transform_regex = []
+          allow_concatenation = false
+          allow_dashes = false
+          allow_emojis = true
+          check_footnote_references = true
+
+          [zet]
+          lang = "en_US"
+          search_dirs = []
+          skip_os_lookups = false
+          use_builtin = true
+          tokenization_splitchars = ''''",;:.!?#(){}[]|/_-‒'`&@§¶…''''
+          extra_dictionaries = [ "${cargoSpellcheckDictionary}" ]
+
+          [zet.quirks]
+          transform_regex = []
+          allow_concatenation = false
+          allow_dashes = false
+          allow_emojis = true
+          check_footnote_references = true
+
+          [spellbook]
+          lang = "en_US"
+          search_dirs = []
+          skip_os_lookups = false
+          use_builtin = true
+          tokenization_splitchars = ''''",;:.!?#(){}[]|/_-‒'`&@§¶…''''
+          extra_dictionaries = [ "${cargoSpellcheckDictionary}" ]
+
+          [spellbook.quirks]
+          transform_regex = []
+          allow_concatenation = false
+          allow_dashes = false
+          allow_emojis = true
+          check_footnote_references = true
+
+          [nlprules]
+
+          [reflow]
+          max_line_length = 120
+        '';
+
+        ci-run-spellcheck = pkgs.writeScriptBin "ci-run-spellcheck" ''
+          ${pkgs.lib.getExe pkgs.cargo-spellcheck} --cfg "${cargoSpellcheckConfig}" ''${INPUT_SPELLCHECK_FLAGS:-check} "$@"
+        '';
+
+        spellcheck-with-reviewdog = pkgs.writeScriptBin "spellcheck-with-reviewdog" ''
+          printf "Running %s ci linter...\n" "spellcheck"
+          printf "\n"
+
+          ${pkgs.lib.getExe ci-run-spellcheck} |
+            ${pkgs.lib.getExe pkgs.reviewdog} \
+              -efm="%f:%l:%c: %m" \
+              -name "spellcheck" \
+              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+              -level="''${INPUT_LEVEL}" \
+              -filter-mode="''${INPUT_FILTER_MODE}" \
+              -fail-level="''${INPUT_FAIL_LEVEL}" \
+              ''${INPUT_REVIEWDOG_FLAGS}
+
+          printf "Done\n"
+        '';
       in
       {
         formatter = treefmt-conf.formatter.${system};
@@ -206,6 +299,34 @@
               printf "\n"
 
               export INPUT_ACTIONLINT_FLAGS="-oneline"
+
+              export INPUT_LEVEL="error"
+              export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
+              export INPUT_FAIL_LEVEL="any" # any error
+            '';
+          };
+          ci-spellcheck = pkgs.mkShell {
+            buildInputs =
+              with pkgs;
+              [
+                cargo-spellcheck
+                reviewdog
+              ]
+              ++ [
+                ci-run-spellcheck
+                actionlint-with-reviewdog
+              ];
+            shellHook = ''
+              ${pkgs.lib.getExe pkgs.cowsay} "Welcome to .#ci-spellcheck devShell!"
+              printf "\n"
+
+              printf "reviewdog version: "
+              reviewdog --version
+              printf "cargo-spellcheck version: "
+              cargo-spellcheck --version
+              printf "\n"
+
+              export INPUT_SPELLCHECK_FLAGS="check"
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
