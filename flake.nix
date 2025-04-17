@@ -42,70 +42,96 @@
           inherit system overlays;
         };
 
-        ci-run-markdownlint-cli = pkgs.writeScriptBin "ci-run-markdownlint-cli" ''
-          # CHANGELOG.md:5:1 MD033/no-inline-html Inline HTML [Element: h2]
-          # CHANGELOG.md:9 MD001/heading-increment/header-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
+        ci-run-markdownlint-cli = pkgs.writeShellApplication {
+          name = "ci-run-markdownlint-cli";
+          text = ''
+            # CHANGELOG.md:5:1 MD033/no-inline-html Inline HTML [Element: h2]
+            # CHANGELOG.md:9 MD001/heading-increment/header-increment Heading levels should only increment by one level at a time [Expected: h2; Actual: h3]
 
-          ${pkgs.lib.getExe pkgs.markdownlint-cli} $INPUT_MARKDOWNCLI_IGNORE $INPUT_MARKDOWNCLI_FLAGS "$@"
-        '';
+            if [[ -z ''${INPUT_MARKDOWNCLI_IGNORE:-} ]]; then
+              export INPUT_MARKDOWNCLI_IGNORE=("--ignore" "./pages-gh")
+            fi
+            if [[ -z ''${INPUT_MARKDOWNCLI_FLAGS:-} ]]; then
+              export INPUT_MARKDOWNCLI_FLAGS=(".")
+            fi
 
-        markdownlint-cli-with-reviewdog = pkgs.writeScriptBin "markdownlint-cli-with-reviewdog" ''
-          printf "Running %s ci linter...\n" "markdownlint-cli"
-          printf "\n"
+            ${pkgs.lib.getExe pkgs.markdownlint-cli} "''${INPUT_MARKDOWNCLI_IGNORE[@]:-}" "''${INPUT_MARKDOWNCLI_FLAGS[@]}" "''${@}"
+          '';
+        };
 
-          ${pkgs.lib.getExe ci-run-markdownlint-cli} |
-            ${pkgs.lib.getExe pkgs.gnused} -r -e 's/^(.*[.]md:[0-9]+) (.*)$/\1:1 \2/g' |
-              ${pkgs.lib.getExe pkgs.reviewdog} -tee -efm="%f:%l:%c: %m" -name="markdownlint" \
-              -reporter="$INPUT_REPORTER" \
-              -fail-level="$INPUT_FAIL_LEVEL"
+        markdownlint-cli-with-reviewdog = pkgs.writeShellApplication {
+          name = "markdownlint-cli-with-reviewdog";
+          text = ''
+            printf "Running %s ci linter...\n" "markdownlint-cli"
+            printf "\n"
 
-          printf "Done\n"
-        '';
+            ${pkgs.lib.getExe ci-run-markdownlint-cli} |
+              ${pkgs.lib.getExe pkgs.gnused} -r -e 's/^(.*[.]md:[0-9]+) (.*)$/\1:1 \2/g' |
+                ${pkgs.lib.getExe pkgs.reviewdog} -tee -efm="%f:%l:%c: %m" -name="markdownlint" \
+                -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+                -fail-level="''${INPUT_FAIL_LEVEL:-any}"
 
-        ci-run-yamllint = pkgs.writeScriptBin "ci-run-yamllint" ''
-          ${pkgs.lib.getExe pkgs.yamllint} ''${INPUT_YAMLLINT_FLAGS:-'.'} "$@"
-        '';
+            printf "Done\n"
+          '';
+        };
 
-        yamllint-with-reviewdog = pkgs.writeScriptBin "yamllint-with-reviewdog" ''
-          printf "Running %s ci linter...\n" "yamllint"
-          printf "\n"
+        ci-run-yamllint = pkgs.writeShellApplication {
+          name = "ci-run-yamllint";
+          text = ''
+            ${pkgs.lib.getExe pkgs.yamllint} "''${INPUT_YAMLLINT_FLAGS[@]:-'.'}" "$@"
+          '';
+        };
 
-          ${pkgs.lib.getExe ci-run-yamllint} |
-            ${pkgs.lib.getExe pkgs.reviewdog} \
-              -efm="%f:%l:%c: %m" \
-              -name "yamllint" \
-              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
-              -level="''${INPUT_LEVEL}" \
-              -filter-mode="''${INPUT_FILTER_MODE}" \
-              -fail-level="''${INPUT_FAIL_LEVEL}" \
-              ''${INPUT_REVIEWDOG_FLAGS}
+        yamllint-with-reviewdog = pkgs.writeShellApplication {
+          name = "yamllint-with-reviewdog";
+          text = ''
+            printf "Running %s ci linter...\n" "yamllint"
+            printf "\n"
 
-          printf "Done\n"
-        '';
+            ${pkgs.lib.getExe ci-run-yamllint} |
+              ${pkgs.lib.getExe pkgs.reviewdog} \
+                -efm="%f:%l:%c: %m" \
+                -name "yamllint" \
+                -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+                -level="''${INPUT_LEVEL:-error}" \
+                -filter-mode="''${INPUT_FILTER_MODE:-added}" \
+                -fail-level="''${INPUT_FAIL_LEVEL:-any}" \
+                "''${INPUT_REVIEWDOG_FLAGS[@]:-}"
 
-        ci-run-actionlint = pkgs.writeScriptBin "ci-run-actionlint" ''
-          #  echo "::add-matcher::.github/actionlint-matcher.json"
-          for f in ./.github/workflows/*yml; do
-            ${pkgs.lib.getExe pkgs.actionlint} ''${INPUT_ACTIONLINT_FLAGS:-'-oneline'} "$f" "$@"
-          done
-        '';
+            printf "Done\n"
+          '';
+        };
 
-        actionlint-with-reviewdog = pkgs.writeScriptBin "actionlint-with-reviewdog" ''
-          printf "Running %s ci linter...\n" "actionlint"
-          printf "\n"
+        ci-run-actionlint = pkgs.writeShellApplication {
+          name = "ci-run-actionlint";
+          text = ''
+            #  echo "::add-matcher::.github/actionlint-matcher.json"
+            for f in ./.github/workflows/*yml; do
+              ${pkgs.lib.getExe pkgs.actionlint} "''${INPUT_ACTIONLINT_FLAGS[@]:--oneline}" "$f" "$@"
+            done
+          '';
+        };
 
-          ${pkgs.lib.getExe ci-run-actionlint} |
-            ${pkgs.lib.getExe pkgs.reviewdog} \
-              -efm="%f:%l:%c: %m" \
-              -name "actionlint" \
-              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
-              -level="''${INPUT_LEVEL}" \
-              -filter-mode="''${INPUT_FILTER_MODE}" \
-              -fail-level="''${INPUT_FAIL_LEVEL}" \
-              ''${INPUT_REVIEWDOG_FLAGS}
+        actionlint-with-reviewdog = pkgs.writeShellApplication {
+          name = "actionlint-with-reviewdog";
+          text = ''
 
-          printf "Done\n"
-        '';
+            printf "Running %s ci linter...\n" "actionlint"
+            printf "\n"
+
+            ${pkgs.lib.getExe ci-run-actionlint} |
+              ${pkgs.lib.getExe pkgs.reviewdog} \
+                -efm="%f:%l:%c: %m" \
+                -name "actionlint" \
+                -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+                -level="''${INPUT_LEVEL:-error}" \
+                -filter-mode="''${INPUT_FILTER_MODE:-added}" \
+                -fail-level="''${INPUT_FAIL_LEVEL:-any}" \
+                "''${INPUT_REVIEWDOG_FLAGS[@]:-}"
+
+            printf "Done\n"
+          '';
+        };
 
         # first line needs to be a number
         cargoSpellcheckDictionary = pkgs.writeText ".config/mywords.dic" ''
@@ -179,26 +205,32 @@
           max_line_length = 120
         '';
 
-        ci-run-spellcheck = pkgs.writeScriptBin "ci-run-spellcheck" ''
-          ${pkgs.lib.getExe pkgs.cargo-spellcheck} --cfg "${cargoSpellcheckConfig}" ''${INPUT_SPELLCHECK_FLAGS:-check} "$@"
-        '';
+        ci-run-spellcheck = pkgs.writeShellApplication {
+          name = "ci-run-spellcheck";
+          text = ''
+            ${pkgs.lib.getExe pkgs.cargo-spellcheck} --cfg "${cargoSpellcheckConfig}" "''${INPUT_SPELLCHECK_FLAGS[@]:-check}" "$@"
+          '';
+        };
 
-        spellcheck-with-reviewdog = pkgs.writeScriptBin "spellcheck-with-reviewdog" ''
-          printf "Running %s ci linter...\n" "spellcheck"
-          printf "\n"
+        spellcheck-with-reviewdog = pkgs.writeShellApplication {
+          name = "spellcheck-with-reviewdog";
+          text = ''
+            printf "Running %s ci linter...\n" "spellcheck"
+            printf "\n"
 
-          ${pkgs.lib.getExe ci-run-spellcheck} |
-            ${pkgs.lib.getExe pkgs.reviewdog} \
-              -efm="%f:%l:%c: %m" \
-              -name "spellcheck" \
-              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
-              -level="''${INPUT_LEVEL}" \
-              -filter-mode="''${INPUT_FILTER_MODE}" \
-              -fail-level="''${INPUT_FAIL_LEVEL}" \
-              ''${INPUT_REVIEWDOG_FLAGS}
+            ${pkgs.lib.getExe ci-run-spellcheck} |
+              ${pkgs.lib.getExe pkgs.reviewdog} \
+                -efm="%f:%l:%c: %m" \
+                -name "spellcheck" \
+                -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+                -level="''${INPUT_LEVEL:-error}" \
+                -filter-mode="''${INPUT_FILTER_MODE:-added}" \
+                -fail-level="''${INPUT_FAIL_LEVEL:-any}" \
+                "''${INPUT_REVIEWDOG_FLAGS[@]:-}"
 
-          printf "Done\n"
-        '';
+            printf "Done\n"
+          '';
+        };
       in
       {
         formatter = treefmt-conf.formatter.${system};
@@ -238,8 +270,8 @@
               markdownlint --version
               printf "\n"
 
-              export INPUT_MARKDOWNCLI_IGNORE="--ignore ./pages-gh"
-              export INPUT_MARKDOWNCLI_FLAGS="."
+              export INPUT_MARKDOWNCLI_IGNORE=("--ignore" "./pages-gh")
+              export INPUT_MARKDOWNCLI_FLAGS=(".")
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
@@ -298,7 +330,7 @@
               shellcheck --version
               printf "\n"
 
-              export INPUT_ACTIONLINT_FLAGS="-oneline"
+              export INPUT_ACTIONLINT_FLAGS=("-oneline")
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
@@ -326,7 +358,7 @@
               cargo-spellcheck --version
               printf "\n"
 
-              export INPUT_SPELLCHECK_FLAGS="check"
+              export INPUT_SPELLCHECK_FLAGS=("check")
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
