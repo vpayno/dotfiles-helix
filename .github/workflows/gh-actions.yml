@@ -74,35 +74,12 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.ref }}
           submodules: recursive
-      - name: Set up Go
-        id: setup-go
-        uses: actions/setup-go@v5
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@main
+      - name: Check Nixpkgs inputs
+        uses: DeterminateSystems/flake-checker-action@main
         with:
-          go-version: ">=1.20"
-      - name: Show Go version
-        id: go-version-check
-        run: |
-          go version
-      - name: Install Tools
-        id: install-tools
-        run: |
-          go install github.com/reviewdog/reviewdog/cmd/reviewdog@latest
-          go install github.com/rhysd/actionlint/cmd/actionlint@latest
-          sudo apt install -y shellcheck
-      - name: Reviewdog Version Checks
-        id: version-check-reviewdog
-        run: |
-          reviewdog --version
-      - name: Actionlint Version Checks
-        id: version-check-actionlint
-        run: |
-          actionlint --version
+          fail-mode: true
       - name: Analyzing the code with actionlint
         id: actionlint
-        run: |-
-          echo "::add-matcher::.github/actionlint-matcher.json"
-          for f in ./.github/workflows/*yml; do
-            printf "Running: actionlint %s\n" "${f}"
-            tee /tmp/actionlint.out < <(actionlint -oneline "${f}")
-            reviewdog -efm="%f:%l:%c: %m" -name="actionlint" -reporter=github-pr-check < /tmp/actionlint.out
-          done
+        run: nix develop .#ci-actionlint --command actionlint-with-reviewdog

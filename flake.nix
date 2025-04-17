@@ -82,6 +82,30 @@
 
           printf "Done\n"
         '';
+
+        ci-run-actionlint = pkgs.writeScriptBin "ci-run-actionlint" ''
+          #  echo "::add-matcher::.github/actionlint-matcher.json"
+          for f in ./.github/workflows/*yml; do
+            ${pkgs.lib.getExe pkgs.actionlint} ''${INPUT_ACTIONLINT_FLAGS:-'-oneline'} "$f" "$@"
+          done
+        '';
+
+        actionlint-with-reviewdog = pkgs.writeScriptBin "actionlint-with-reviewdog" ''
+          printf "Running %s ci linter...\n" "actionlint"
+          printf "\n"
+
+          ${pkgs.lib.getExe ci-run-actionlint} |
+            ${pkgs.lib.getExe pkgs.reviewdog} \
+              -efm="%f:%l:%c: %m" \
+              -name "actionlint" \
+              -reporter="''${INPUT_REPORTER:-github-pr-check}" \
+              -level="''${INPUT_LEVEL}" \
+              -filter-mode="''${INPUT_FILTER_MODE}" \
+              -fail-level="''${INPUT_FAIL_LEVEL}" \
+              ''${INPUT_REVIEWDOG_FLAGS}
+
+          printf "Done\n"
+        '';
       in
       {
         formatter = treefmt-conf.formatter.${system};
@@ -151,6 +175,37 @@
               printf "\n"
 
               export INPUT_YAMLLINT_FLAGS="."
+
+              export INPUT_LEVEL="error"
+              export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
+              export INPUT_FAIL_LEVEL="any" # any error
+            '';
+          };
+          ci-actionlint = pkgs.mkShell {
+            buildInputs =
+              with pkgs;
+              [
+                actionlint
+                reviewdog
+                shellcheck
+              ]
+              ++ [
+                ci-run-actionlint
+                actionlint-with-reviewdog
+              ];
+            shellHook = ''
+              ${pkgs.lib.getExe pkgs.cowsay} "Welcome to .#ci-actionlint devShell!"
+              printf "\n"
+
+              printf "reviewdog version: "
+              reviewdog --version
+              printf "actionlint version: "
+              actionlint --version
+              printf "shellcheck version: "
+              shellcheck --version
+              printf "\n"
+
+              export INPUT_ACTIONLINT_FLAGS="-oneline"
 
               export INPUT_LEVEL="error"
               export INPUT_REPORTER="github-check" # github-check github-pr-check github-pr-review github-pr-annotations
