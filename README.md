@@ -17,43 +17,65 @@ Use this playbook step/task to update the [RunMe](https://runme.dev) cli.
 
 If you don't have runme installed, you'll need to copy/paste the command. :)
 
-```bash { background=false category=runme closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=setup-install-runme promptEnv=true terminalRows=10 }
-go install github.com/stateful/runme/v3@v3
+```text
+nix profile install nixpkgs#runme
 ```
 
 ## Reading
 
 [Build from source](https://docs.helix-editor.com/install.html#build-from-source)
 
-## Installation
+## Nix
 
-- Installing directly from GitHub:
+Using Nix to run and install a pre-configured helix editor. Forgotten are the
+days of having to install a program, then keeping it's configurations in sync,
+making sure the running version and the configuration are compatible, et cetera.
 
-```bash { background=false category=install closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=install-from-github promptEnv=true terminalRows=10 }
-cargo install --git https://github.com/helix-editor/helix.git --tag "$(git ls-remote --tags https://github.com/helix-editor/helix.git | sed -r -e 's:.*/::g' | grep -E '^[0-9]+[.][0-9]+([.][0-9]+)?$' | sort -rV | head -n 1)" helix-term
+### Running without installing
+
+```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=run-helix promptEnv=true terminalRows=10 }
+nix run github:vpayno/dotfiles-helix --
 ```
 
-- Clone the dotfiles repo:
+### Installing it
 
-```bash { background=false category=dotfiles closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=install-dotfiles promptEnv=true terminalRows=10 }
-git clone --recursive -j 8 https://github.com/vpayno/dotfiles-helix ~/.config/helix
+```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=install-helix promptEnv=true terminalRows=10 }
+nix profile install github:vpayno/dotfiles-helix
 ```
 
-- Checkout the latest tag, build and install Helix.
+Where is it installed?
 
-```bash { background=false category=install closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=install-from-dotfiles promptEnv=true terminalRows=10 }
-cd ~/.config/helix/helix.git
-
-git switch --detach "$(git tag | grep -E '^[2-9][0-9][.][0-9]+([.][0-9]+)?$' | tail -n 1)"
-
-cargo install --path helix-term
+```text
+$ which hx
+/home/vpayno/.nix-profile/bin/hx
 ```
 
-- Check the installed Helix version.
+Check the installed Helix version.
 
-```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=verify-version promptEnv=true terminalRows=10 }
+```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=verify-helix promptEnv=true terminalRows=10 }
 hx --version
-# helix 24.3 (2cadec0b)
+```
+
+Example output:
+
+```text
+INFO: Using /nix/store/9cfxhfzsqwzfphacz5yn06rlng1qs96g-helix-config-dir as the config source.
+
+INFO: Using /home/vpayno/.nix-profile/bin/hx as the wrapper script.
+
+helix 25.01.1 (e7ac2fcd)
+```
+
+### Updating it
+
+```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=update-helix promptEnv=true terminalRows=10 }
+nix profile remove dotfiles-helix
+```
+
+### Uninstalling it
+
+```bash { background=false category=info closeTerminalOnSuccess=true excludeFromRunAll=true interactive=true interpreter=bash name=uninstall-helix promptEnv=true terminalRows=10 }
+nix profile remove dotfiles-helix
 ```
 
 ## Themes

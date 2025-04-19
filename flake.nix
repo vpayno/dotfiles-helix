@@ -42,6 +42,20 @@
           inherit system overlays;
         };
 
+        metadata = {
+          homepage = "https://github.com/vpayno/dotfiles-helix";
+          description = "Personal pre-configured helix editor";
+          license = with pkgs.lib.licenses; [ mit ];
+          # maintainers = with pkgs.lib.maintainers; [vpayno];
+          maintainers = {
+            email = "vpayno@users.noreply.github.com";
+            github = "vpayno";
+            githubId = 3181575;
+            name = "Victor Payno";
+          };
+          mainProgram = "hx";
+        };
+
         ci-run-markdownlint-cli = pkgs.writeShellApplication {
           name = "ci-run-markdownlint-cli";
           text = ''
@@ -231,9 +245,89 @@
             printf "Done\n"
           '';
         };
+
+        helixConfigDir = pkgs.stdenv.mkDerivation {
+          name = "helix-config-dir";
+          src = ./.;
+          buildInputs = with pkgs; [
+            coreutils
+            tree
+          ];
+          installPhase = ''
+            ls $src
+
+            mkdir -pv $out
+
+            cp -v "$src"/config.toml "$out"/
+            cp -v "$src"/languages.toml "$out"/
+            cp -vr "$src"/themes "$out"/
+
+            ln -sv "${pkgs.helix}/lib/runtime" "$out"/runtime
+
+            tree "$out"/
+          '';
+        };
+
+        /*
+          Notes:
+          - hx doesn't support custom configuration directories so the wrapper script
+            has to insert it's configuration directory in the default location.
+          - the wrapper script places the host's PATH at the end of it's PATH so you
+            can provide per-project versions using `nix develop` and `devbox shell`.
+        */
+        helixWrapper = pkgs.writeShellApplication {
+          name = "hx";
+          runtimeInputs = with pkgs; [
+            bashInteractive
+            coreutils
+            helix
+            moreutils
+          ];
+          text = ''
+            if [[ -d ~/.config/helix ]] && [[ ! -L ~/.config/helix ]]; then
+              printf "INFO: renaming found config directory\n"
+              mv -v ~/.config/helix{,-"''$(date +%Y%m%d-%H%M%S)"}
+              printf "\n"
+            fi
+
+            if [[ ! -e ~/.config/helix ]] || [[ $(realpath ~/.config/helix) != ${helixConfigDir} ]]; then
+              printf "INFO: Creating config symlink to /nix/store...\n"
+              ln -nsfv ${helixConfigDir} ~/.config/helix
+              printf "\n"
+            fi
+
+            printf "INFO: Using %s as the config source.\n" "${helixConfigDir}"
+            printf "\n"
+
+            printf "INFO: Using %s as the wrapper script.\n" "$0"
+            printf "\n"
+
+            exec hx --config ${helixConfigDir}/config.toml "$@"
+          '';
+        };
       in
       {
         formatter = treefmt-conf.formatter.${system};
+
+        packages = rec {
+          default = hx;
+
+          hx = {
+            pname = "nix-helix-conf";
+            inherit version;
+            name = "${pname}-${version}";
+          } // helixWrapper;
+        };
+
+        apps = rec {
+          default = hx;
+
+          hx = {
+            type = "app";
+            program = "${pkgs.lib.getExe helixWrapper}";
+            meta = metadata;
+          };
+        };
 
         devShells = {
           ci-test = pkgs.mkShell {

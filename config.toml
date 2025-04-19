@@ -1,6 +1,7 @@
 # config.toml
 
 # https://docs.helix-editor.com/configuration.html
+# https://docs.helix-editor.com/editor.html
 
 theme = "vpayno-dark1"
 
