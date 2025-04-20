@@ -280,6 +280,32 @@
           '';
         };
 
+        toolPkgs = with pkgs; [
+          jq
+          taplo-cli # get, fmt, lint, lsp
+          xmlstarlet
+          yq-go
+        ];
+
+        lintPkgs = with pkgs; [
+          shellcheck
+          yamllint
+        ];
+
+        fmtPkgs = with pkgs; [
+          jsonfmt
+          shfmt
+          xmlformat
+          yamlfix
+        ];
+
+        lspPkgs = with pkgs; [
+          bash-language-server
+          lemminx
+          spectral-language-server
+          yaml-language-server
+        ];
+
         /*
           Notes:
           - hx doesn't support custom configuration directories so the wrapper script
@@ -289,12 +315,18 @@
         */
         helixWrapper = pkgs.writeShellApplication {
           name = "hx";
-          runtimeInputs = with pkgs; [
-            bashInteractive
-            coreutils
-            helix
-            moreutils
-          ];
+          runtimeInputs =
+            with pkgs;
+            [
+              bashInteractive
+              coreutils
+              helix
+              moreutils
+            ]
+            ++ toolPkgs
+            ++ lintPkgs
+            ++ fmtPkgs
+            ++ lspPkgs;
           text = ''
             if [[ -d ~/.config/helix ]] && [[ ! -L ~/.config/helix ]]; then
               printf "INFO: renaming found config directory\n"
