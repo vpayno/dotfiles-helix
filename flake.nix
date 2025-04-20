@@ -56,6 +56,18 @@
           mainProgram = "hx";
         };
 
+        usageMessage = ''
+          Available ${name} flake commands:
+
+            nix run .#usage
+
+            nix run . -- "message"
+              nix run .#default -- helix args
+              nix run .#hx      -- helix args
+
+            nix profile install github:vpayno/dotfiles-helix
+        '';
+
         ci-run-markdownlint-cli = pkgs.writeShellApplication {
           name = "ci-run-markdownlint-cli";
           text = ''
@@ -317,6 +329,12 @@
             inherit version;
             name = "${pname}-${version}";
           } // helixWrapper;
+
+          # very odd, this doesn't work with pkgs.writeShellApplication
+          # odd quoting error when the string usagemessage as new lines
+          showUsage = pkgs.writeShellScriptBin "showUsage" ''
+            printf "%s" "${usageMessage}"
+          '';
         };
 
         apps = rec {
@@ -325,6 +343,15 @@
           hx = {
             type = "app";
             program = "${pkgs.lib.getExe helixWrapper}";
+            meta = metadata;
+          };
+
+          usage = {
+            type = "app";
+            pname = "usage";
+            inherit version;
+            name = "${pname}-${version}";
+            program = "${pkgs.lib.getExe self.packages.${system}.showUsage}";
             meta = metadata;
           };
         };
