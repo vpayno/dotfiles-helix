@@ -47,12 +47,14 @@
           description = "Personal pre-configured helix editor";
           license = with pkgs.lib.licenses; [ mit ];
           # maintainers = with pkgs.lib.maintainers; [vpayno];
-          maintainers = {
-            email = "vpayno@users.noreply.github.com";
-            github = "vpayno";
-            githubId = 3181575;
-            name = "Victor Payno";
-          };
+          maintainers = [
+            {
+              email = "vpayno@users.noreply.github.com";
+              github = "vpayno";
+              githubId = 3181575;
+              name = "Victor Payno";
+            }
+          ];
           mainProgram = "hx";
         };
 
